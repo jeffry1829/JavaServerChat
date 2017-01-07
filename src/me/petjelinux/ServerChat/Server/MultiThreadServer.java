@@ -22,6 +22,8 @@ import me.petjelinux.ServerChat.Server.Exceptions.NoSuchChannelException;
 
 public class MultiThreadServer implements Runnable {
 	SSLSocket ss;
+	public static Chatroom lobby;
+	
 	public static HashMap<SSLSocket, Chatroom> ss_current_channels = new HashMap<SSLSocket, Chatroom>();
 	public static HashMap<SSLSocket, String> ss_nick = new HashMap<SSLSocket, String>();
 
@@ -35,6 +37,8 @@ public class MultiThreadServer implements Runnable {
 	 * args2 = kspw
 	 */
 	public static void main(String args[]) throws Exception {
+		lobby = new Chatroom("lobby");
+		
 		KeyStore ks = KeyStore.getInstance("JKS");
 		ks.load(new FileInputStream(args[0]), args[2].toCharArray());
 
@@ -68,7 +72,13 @@ public class MultiThreadServer implements Runnable {
 				if (command == null) {
 					continue;
 				}
-
+				if(ss_nick.get(ss) == null){
+					ss_nick.put(ss, "unset");
+				}
+				if(ss_current_channels.get(ss) == null){
+					ss_current_channels.put(ss, lobby);
+				}
+				
 				switch (command[0]) {
 				case "SAY":
 					if (ss_current_channels.get(ss) == null) {
