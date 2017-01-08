@@ -10,17 +10,11 @@ public class ProtocolParser {
 			 * args0 SAY 
 			 * args1.. line
 			 */
-			if(tokens.length != 2){
-				return null;
-			}
 			if (tokens[1] == null) {
 				return null;
 			}
-
-			String line = "";
-			for (int i = 1; i < tokens.length; i++) {
-				line = line.concat(tokens[i]);
-			}
+			
+			String line = input.replaceFirst("^SAY *", "");
 			if (line.equals("")) {
 				return null;
 			}
