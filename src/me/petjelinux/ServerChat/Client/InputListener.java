@@ -21,9 +21,11 @@ public class InputListener implements Runnable {
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(ss.getOutputStream()));
 			String line;
-			while ((line = br.readLine()) != null) {
-				bw.write(line);
-				bw.flush();
+			while (true) {
+				while ((line = br.readLine()) != null) {
+					bw.write(line);
+					bw.flush();
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

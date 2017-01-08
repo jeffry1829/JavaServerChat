@@ -22,7 +22,7 @@ import me.petjelinux.ServerChat.Server.Exceptions.NoSuchChannelException;
 public class MultiThreadServer implements Runnable {
 	SSLSocket ss;
 	public static Chatroom lobby;
-	
+
 	public static HashMap<SSLSocket, Chatroom> ss_current_channels = new HashMap<SSLSocket, Chatroom>();
 	public static HashMap<SSLSocket, String> ss_nick = new HashMap<SSLSocket, String>();
 
@@ -37,7 +37,7 @@ public class MultiThreadServer implements Runnable {
 	 */
 	public static void main(String args[]) throws Exception {
 		lobby = new Chatroom("lobby");
-		
+
 		KeyStore ks = KeyStore.getInstance("JKS");
 		ks.load(new FileInputStream("./server.cer"), args[1].toCharArray());
 
@@ -63,52 +63,58 @@ public class MultiThreadServer implements Runnable {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(ss.getInputStream()));
 			String in;
-			while ((in = br.readLine()) != null) {
-				String[] command = ProtocolParser.parse(in);
-				if (command == null) {
-					continue;
-				}
-				if(ss_nick.get(ss) == null){
-					ss_nick.put(ss, "unset");
-				}
-				if(ss_current_channels.get(ss) == null){
-					ss_current_channels.put(ss, lobby);
-				}
-				
-				switch (command[0]) {
-				case "SAY":
+			while (true) {
+				while ((in = br.readLine()) != null) {
+
+					//#debug
+					System.out.println("get message! => " + in);
+
+					String[] command = ProtocolParser.parse(in);
+					if (command == null) {
+						continue;
+					}
+					if (ss_nick.get(ss) == null) {
+						ss_nick.put(ss, "unset");
+					}
 					if (ss_current_channels.get(ss) == null) {
-						BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(ss.getOutputStream()));
-						bw.write("you have to join a channel first");
-						bw.flush();
-					} else {
-						ss_current_channels.get(ss).appendLog(ss_nick.get(ss) + command[1]);
+						ss_current_channels.put(ss, lobby);
 					}
-					break;
-				case "JOIN": // direct continue to VIEW
-					try {
-						ss_current_channels.put(ss, Chatroom.getChatroom(command[1]));
-					} catch (NoSuchChannelException e) { //Create one
+
+					switch (command[0]) {
+					case "SAY":
+						if (ss_current_channels.get(ss) == null) {
+							BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(ss.getOutputStream()));
+							bw.write("you have to join a channel first");
+							bw.flush();
+						} else {
+							ss_current_channels.get(ss).appendLog(ss_nick.get(ss) + command[1]);
+						}
+						break;
+					case "JOIN": // direct continue to VIEW
 						try {
+							ss_current_channels.put(ss, Chatroom.getChatroom(command[1]));
+						} catch (NoSuchChannelException e) { //Create one
+							try {
 
-							new Chatroom(command[1]);
+								new Chatroom(command[1]);
 
-						} catch (ChatroomExistsException e1) {
-						} // not possible
+							} catch (ChatroomExistsException e1) {
+							} // not possible
+						}
+					case "VIEW":
+						String logs = Chatroom.getChatroom(command[1]).getLog(Integer.parseInt(command[2]));
+						BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(ss.getOutputStream()));
+						bw.write(logs);
+						bw.flush();
+						break;
+					case "NICK":
+						ss_current_channels.get(ss).appendLog(
+								"Now " + ss_nick.get(ss) + " has changed his(her) nickname" + " to " + command[1]);
+						ss_nick.put(ss, command[1]);
+						break;
+					default:
+						break;
 					}
-				case "VIEW":
-					String logs = Chatroom.getChatroom(command[1]).getLog(Integer.parseInt(command[2]));
-					BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(ss.getOutputStream()));
-					bw.write(logs);
-					bw.flush();
-					break;
-				case "NICK":
-					ss_current_channels.get(ss).appendLog(
-							"Now " + ss_nick.get(ss) + " has changed his(her) nickname" + " to " + command[1]);
-					ss_nick.put(ss, command[1]);
-					break;
-				default:
-					break;
 				}
 			}
 		} catch (IOException e) {
