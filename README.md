@@ -14,7 +14,7 @@ And get ready for the following steps
 This is my SSL API usage practice.  
 This tiny program can use TLS to communicate with others.  
 ##Commands  
-SAY [message]\(send message)
+SAY [message]\(send message)  
 JOIN [channel]\(JOIN a channel | default: you are at "lobby")  
 VIEW [channel]\(VIEW a channel's log)  
 NICK [nickname]\(change your nickname | default: unset)  
