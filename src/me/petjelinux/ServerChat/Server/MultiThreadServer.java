@@ -15,7 +15,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
-import javax.net.ssl.TrustManagerFactory;
 
 import me.petjelinux.ServerChat.Server.Exceptions.ChatroomExistsException;
 import me.petjelinux.ServerChat.Server.Exceptions.NoSuchChannelException;
@@ -32,27 +31,24 @@ public class MultiThreadServer implements Runnable {
 	}
 
 	/*
-	 * args0 = jks file path 
-	 * args1 = listen port 
-	 * args2 = kspw
+	 * args0 = jks file path => depreciated use file path "./server.cer" instead
+	 * args0 = listen port 
+	 * args1 = kspw
 	 */
 	public static void main(String args[]) throws Exception {
 		lobby = new Chatroom("lobby");
 		
 		KeyStore ks = KeyStore.getInstance("JKS");
-		ks.load(new FileInputStream(args[0]), args[2].toCharArray());
+		ks.load(new FileInputStream("./server.cer"), args[1].toCharArray());
 
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		kmf.init(ks, args[2].toCharArray());
-
-		TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-		tmf.init(ks);
+		kmf.init(ks, args[1].toCharArray());
 
 		SSLContext sc = SSLContext.getInstance("TLS");
-		sc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), SecureRandom.getInstanceStrong());
+		sc.init(kmf.getKeyManagers(), null, SecureRandom.getInstanceStrong());
 
 		SSLServerSocketFactory sssf = sc.getServerSocketFactory();
-		SSLServerSocket sss = (SSLServerSocket) sssf.createServerSocket(Integer.parseInt(args[1]));
+		SSLServerSocket sss = (SSLServerSocket) sssf.createServerSocket(Integer.parseInt(args[0]));
 
 		while (true) {
 			SSLSocket ss = (SSLSocket) sss.accept();
