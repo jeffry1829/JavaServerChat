@@ -28,6 +28,7 @@ public class CMD {
 		SSLSocketFactory sf = sc.getSocketFactory();
 		SSLSocket ss = (SSLSocket) sf.createSocket(args[1], Integer.parseInt(args[2]));
 		
-		(new Thread(new InputListener(ss))).start();
+		(new Thread(new SocketInputListener(ss))).start();
+		(new Thread(new SystemInputListener(ss))).start();
 	}
 }

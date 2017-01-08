@@ -10,18 +10,18 @@ public class ProtocolParser {
 			 * args0 SAY 
 			 * args1.. line
 			 */
-			if (tokens[1] == null) {
+			if(tokens.length != 2){
 				return null;
 			}
-			if (tokens[2] == null) {
+			if (tokens[1] == null) {
 				return null;
 			}
 
 			String line = "";
 			for (int i = 1; i < tokens.length; i++) {
-				line.concat(tokens[i]);
+				line = line.concat(tokens[i]);
 			}
-			if (line == "") {
+			if (line.equals("")) {
 				return null;
 			}
 
@@ -32,11 +32,14 @@ public class ProtocolParser {
 			 * args1 which channel 
 			 * optional[args2] how many lines | default=100
 			 */
+			if(tokens.length < 2){
+				return null;
+			}
 			if (tokens[1] == null) {
 				return null;
 			}
  
-			String amount = tokens[2].matches("^-?\\d+$") ? tokens[2] : "100";
+			String amount = tokens.length >= 3 ? tokens[2].matches("^-?\\d+$") ? tokens[2] : "100" : "100";
 
 			return new String[] { "VIEW", tokens[1], amount };
 		case "JOIN":
@@ -44,6 +47,9 @@ public class ProtocolParser {
 			 * args0 JOIN
 			 * args1 ch_name
 			 */
+			if(tokens.length != 2){
+				return null;
+			}
 			if (tokens[1] == null) {
 				return null;
 			}
@@ -53,6 +59,9 @@ public class ProtocolParser {
 			 * args0 NICK
 			 * args1 nickname
 			 */
+			if(tokens.length != 2){
+				return null;
+			}
 			if (tokens[1] == null) {
 				return null;
 			}

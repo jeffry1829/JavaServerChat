@@ -13,9 +13,9 @@ import me.petjelinux.ServerChat.Server.Exceptions.NoSuchChannelException;
 
 public class Chatroom {
 	public static ArrayList<Chatroom> chatroom_list = new ArrayList<Chatroom>();
+	private ArrayList<SSLSocket> online_sslsockets = new ArrayList<SSLSocket>();
 	private String name = "";
 	private String log = "";
-	private SSLSocket[] online_sslsockets = {};
 
 	public Chatroom(String ch_name) throws ChatroomExistsException {
 		if(!isCreated(ch_name)){
@@ -35,32 +35,40 @@ public class Chatroom {
 		int offset = lines.length - line_amount < 0 ? 0 : lines.length - line_amount;
 		String result = "";
 		for (int i = offset; i < lines.length; i++) {
-			result.concat(lines[i]);
+			result = result.concat(lines[i] + '\n');
 		}
-		return result;
+		return "------------privious log----------------\n" + result + "----------------------------------------\n";
 	}
 	
-	public SSLSocket[] getSSLSockets(){
+	public ArrayList<SSLSocket> getSSLSockets(){
 		return online_sslsockets;
 	}
 	
 	public void messageUsers(String message) throws IOException{
+		
+		//#debug
+		System.out.println(online_sslsockets.size());
+		
 		for(SSLSocket ss : online_sslsockets){
+			if(ss.isClosed()){
+				continue;
+			}
+			
 			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(ss.getOutputStream()));
-			bw.write(message);
+			bw.write(message + '\n');
 			bw.flush();
 		}
 	}
 	
 	public void appendLog(String line) throws IOException{
-		log.concat(line);
+		log = log.concat(line + '\n');
 		messageUsers(line);
 	}
 
 	public static boolean isCreated(String channel) {
 		Iterator<Chatroom> it = chatroom_list.iterator();
 		while(it.hasNext()){
-			if(it.next().getName() == channel){
+			if(it.next().getName().equals(channel)){
 				return true;
 			}
 		}
@@ -71,10 +79,19 @@ public class Chatroom {
 		Iterator<Chatroom> it = chatroom_list.iterator();
 		while(it.hasNext()){
 			Chatroom c = it.next();
-			if(c.getName() == channel){
+			if(c.getName().equals(channel)){
 				return c;
 			}
 		}
 		throw new NoSuchChannelException("NoSuchChannel!");
+	}
+	
+	public void UserJoin(SSLSocket ss){
+		if(!online_sslsockets.contains(ss))
+			online_sslsockets.add(ss);
+	}
+	
+	public void UserLeave(SSLSocket ss){
+		online_sslsockets.remove(ss);
 	}
 }

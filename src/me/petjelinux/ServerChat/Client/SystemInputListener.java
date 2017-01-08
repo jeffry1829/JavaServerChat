@@ -8,10 +8,10 @@ import java.io.OutputStreamWriter;
 
 import javax.net.ssl.SSLSocket;
 
-public class InputListener implements Runnable {
+public class SystemInputListener implements Runnable {
 	SSLSocket ss;
 
-	public InputListener(SSLSocket ss) {
+	public SystemInputListener(SSLSocket ss) {
 		this.ss = ss;
 	}
 
@@ -23,7 +23,8 @@ public class InputListener implements Runnable {
 			String line;
 			while (true) {
 				while ((line = br.readLine()) != null) {
-					bw.write(line);
+					System.out.print("\033[1A\033[2K");
+					bw.write(line + '\n');
 					bw.flush();
 				}
 			}
