@@ -7,8 +7,9 @@ And get ready for the following steps
 1. javac all files into /bin  
 2. cd bin  
 3. mv path/to/server.cer .  
-(Start Client): java me/petjelinux/ServerChat/Client/CMD \[server.cer's password] \[server's ip address] \[server's port]  
-(Start Server): java me/petjelinux/ServerChat/Server/MultiThreadServer \[listen port] \[server.cer's password]  
+\(Start Client\): java me/petjelinux/ServerChat/Client/CMD \[server.cer's password] \[server's ip address] \[server's port]  
+\(Start Server\): java me/petjelinux/ServerChat/Server/MultiThreadServer \[listen port] \[server.cer's password]  
+
 ##What's this?  
 This is my SSL API usage practice.  
 This tiny program can use TLS to communicate with others.  
